@@ -16,7 +16,7 @@ const moodCopy: Record<string, string> = {
 }
 
 export default function App() {
-  const { state, stage, burst, startGame, onTapEgg, doCare, resetGame } = useGame()
+  const { state, stage, burst, performance, startGame, onTapEgg, doCare, resetGame } = useGame()
 
   return (
     <div className="app">
@@ -69,10 +69,17 @@ export default function App() {
             </header>
 
             <p className="prompt">
-              {state.name} {moodCopy[getMood(state.needs)]}
+              {performance
+                ? `${state.name} is singing!`
+                : `${state.name} ${moodCopy[getMood(state.needs)]}`}
             </p>
 
-            <Chicken mood={getMood(state.needs)} name={state.name} burst={burst} />
+            <Chicken
+              mood={getMood(state.needs)}
+              name={state.name}
+              burst={burst}
+              performance={performance}
+            />
             <CarePad needs={state.needs} onCare={doCare} />
           </motion.div>
         )}

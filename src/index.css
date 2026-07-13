@@ -470,6 +470,127 @@ input {
   opacity: 0.7;
 }
 
+.chicken__beak--sing {
+  font-size: 1.35rem;
+  animation: sing-beak 0.28s ease-in-out infinite alternate;
+}
+
+.chicken__wing--flap.chicken__wing--left {
+  animation: flap-left 0.28s ease-in-out infinite alternate;
+}
+
+.chicken__wing--flap.chicken__wing--right {
+  animation: flap-right 0.28s ease-in-out infinite alternate;
+}
+
+@keyframes sing-beak {
+  from {
+    transform: scaleY(0.85);
+  }
+  to {
+    transform: scaleY(1.25);
+  }
+}
+
+@keyframes flap-left {
+  from {
+    transform: rotate(-18deg) translateY(0);
+  }
+  to {
+    transform: rotate(-42deg) translateY(-8px);
+  }
+}
+
+@keyframes flap-right {
+  from {
+    transform: rotate(18deg) translateY(0);
+  }
+  to {
+    transform: rotate(42deg) translateY(-8px);
+  }
+}
+
+.song-banner {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  width: min(92%, 320px);
+  text-align: center;
+  pointer-events: none;
+}
+
+.song-banner__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.song-banner__lyric {
+  margin: 2px 0 0;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #c2410c;
+  animation: lyric-bounce 0.55s ease-in-out infinite alternate;
+}
+
+@keyframes lyric-bounce {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-4px);
+  }
+}
+
+.note {
+  position: absolute;
+  z-index: 2;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #ea580c;
+  pointer-events: none;
+  animation: float-note 1.4s ease-in-out infinite;
+}
+
+.note--a {
+  left: 12%;
+  top: 28%;
+  animation-delay: 0s;
+}
+
+.note--b {
+  right: 10%;
+  top: 22%;
+  animation-delay: 0.25s;
+  color: #0284c7;
+}
+
+.note--c {
+  left: 22%;
+  top: 12%;
+  animation-delay: 0.5s;
+  color: #16a34a;
+}
+
+@keyframes float-note {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.8);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-36px) scale(1.15);
+  }
+}
+
 .fx {
   position: absolute;
   top: 12%;

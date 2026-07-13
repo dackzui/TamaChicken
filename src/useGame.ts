@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   applyAction,
   applyDecay,
@@ -11,10 +11,15 @@ import {
   type GameState,
   type Stage,
 } from './game'
+import { playSong, stopSong } from './playSong'
+import { pickRandomSong, songDurationMs, type Song } from './songs'
 
 export function useGame() {
   const [state, setState] = useState<GameState | null>(() => loadGame())
   const [burst, setBurst] = useState<CareAction | 'hatch' | null>(null)
+  const [performance, setPerformance] = useState<Song | null>(null)
+  const lastSongId = useRef<string | undefined>(undefined)
+  const danceTimer = useRef<number | null>(null)
 
   useEffect(() => {
     if (!state) return
@@ -30,10 +35,19 @@ export function useGame() {
   }, [state?.stage])
 
   useEffect(() => {
-    if (!burst) return
+    if (!burst || burst === 'play') return
     const id = window.setTimeout(() => setBurst(null), 900)
     return () => window.clearTimeout(id)
   }, [burst])
+
+  useEffect(() => {
+    return () => {
+      stopSong()
+      if (danceTimer.current !== null) {
+        window.clearTimeout(danceTimer.current)
+      }
+    }
+  }, [])
 
   const startGame = useCallback((name: string) => {
     setState(createNewGame(name))
@@ -51,14 +65,42 @@ export function useGame() {
   }, [])
 
   const doCare = useCallback((action: CareAction) => {
-    setBurst(action)
+    if (action === 'play') {
+      if (danceTimer.current !== null) {
+        window.clearTimeout(danceTimer.current)
+      }
+      const song = pickRandomSong(lastSongId.current)
+      lastSongId.current = song.id
+      setBurst('play')
+      setPerformance(song)
+      void playSong(song)
+      danceTimer.current = window.setTimeout(() => {
+        setBurst(null)
+        setPerformance(null)
+        danceTimer.current = null
+      }, songDurationMs(song))
+    } else {
+      stopSong()
+      if (danceTimer.current !== null) {
+        window.clearTimeout(danceTimer.current)
+        danceTimer.current = null
+      }
+      setPerformance(null)
+      setBurst(action)
+    }
     setState((prev) => (prev ? applyAction(prev, action) : prev))
   }, [])
 
   const resetGame = useCallback(() => {
+    stopSong()
+    if (danceTimer.current !== null) {
+      window.clearTimeout(danceTimer.current)
+      danceTimer.current = null
+    }
     clearGame()
     setState(null)
     setBurst(null)
+    setPerformance(null)
   }, [])
 
   const stage: Stage | 'name' = state?.stage ?? 'name'
@@ -67,6 +109,7 @@ export function useGame() {
     state,
     stage,
     burst,
+    performance,
     startGame,
     onTapEgg,
     doCare,
