@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="TamaChicken">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8fd3f4"/>
+      <stop offset="100%" stop-color="#ffe8a3"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#sky)"/>
+  <circle cx="256" cy="290" r="140" fill="#ffe066"/>
+  <circle cx="210" cy="270" r="18" fill="#2a3a2e"/>
+  <circle cx="302" cy="270" r="18" fill="#2a3a2e"/>
+  <path d="M256 292 L292 318 L256 344 L220 318 Z" fill="#f08a24"/>
+  <circle cx="188" cy="310" r="22" fill="#ff9aa2" opacity="0.55"/>
+  <circle cx="324" cy="310" r="22" fill="#ff9aa2" opacity="0.55"/>
+  <path d="M210 168 C210 140 236 120 256 120 C276 120 302 140 302 168 C286 156 270 152 256 152 C242 152 226 156 210 168 Z" fill="#e85d4c"/>
+  <path d="M180 168 C168 140 188 118 214 130 C198 146 188 156 180 168 Z" fill="#e85d4c"/>
+  <path d="M332 168 C344 140 324 118 298 130 C314 146 324 156 332 168 Z" fill="#e85d4c"/>
+</svg>

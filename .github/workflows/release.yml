@@ -1,0 +1,207 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump type
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    name: Resolve version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Bump version (manual dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          npm run bump:${{ inputs.bump }}
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          VERSION=$(node -p "require('./package.json').version")
+          git add package.json package-lock.json android ios || true
+          git commit -m "chore: release v${VERSION}" || echo "No commit needed"
+          git tag "v${VERSION}"
+          git push origin HEAD --tags
+
+      - name: Read version from tag
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION=$(node -p "require('./package.json').version")
+          else
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Resolved ${VERSION}"
+
+  build-web:
+    name: Build web
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.version.outputs.tag }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: dist
+
+  build-android:
+    name: Build Android APK
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.version.outputs.tag }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - run: npm ci
+      - run: npm run build
+      - run: npx cap sync android
+      - run: npm run sync:version
+
+      - name: Build debug APK
+        working-directory: android
+        run: chmod +x gradlew && ./gradlew assembleDebug
+
+      - name: Rename APK
+        run: |
+          mkdir -p artifacts
+          cp android/app/build/outputs/apk/debug/app-debug.apk \
+            "artifacts/TamaChicken-${{ needs.version.outputs.version }}-android-debug.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: artifacts/*.apk
+
+  build-ios:
+    name: Build iOS archive
+    needs: version
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.version.outputs.tag }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+      - run: npx cap sync ios
+      - run: npm run sync:version
+
+      - name: Build unsigned iOS app
+        working-directory: ios/App
+        run: |
+          xcodebuild \
+            -scheme App \
+            -destination 'generic/platform=iOS Simulator' \
+            -configuration Debug \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Package simulator build
+        run: |
+          mkdir -p artifacts
+          APP_PATH=$(find ios/App/build/Build/Products -name "*.app" | head -n 1)
+          ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" \
+            "artifacts/TamaChicken-${{ needs.version.outputs.version }}-ios-simulator.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ios-simulator
+          path: artifacts/*.zip
+
+  publish:
+    name: GitHub Release
+    needs: [version, build-web, build-android, build-ios]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.version.outputs.tag }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+
+      - name: Flatten assets
+        run: |
+          mkdir -p upload
+          find release-assets -type f \( -name '*.apk' -o -name '*.zip' \) -exec cp {} upload/ \;
+          cd release-assets/web-dist && zip -r ../../upload/TamaChicken-${{ needs.version.outputs.version }}-web.zip .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.version.outputs.tag }}
+          name: TamaChicken ${{ needs.version.outputs.tag }}
+          generate_release_notes: true
+          files: upload/*
+          body: |
+            ## TamaChicken ${{ needs.version.outputs.tag }}
+
+            Developed by [Marie Apellanes](https://apellanes.com.au)
+
+            ### Install
+            - **Android:** install the `.apk` on your phone/tablet (allow unknown apps)
+            - **iOS:** open the project in Xcode on a Mac to sign & install on device (`ios/App`)
+            - **Web zip:** static build for hosting
+
+            ### Versioning
+            Push a tag (`v1.0.1`) or run **Actions → Release → Run workflow** and choose patch/minor/major.
