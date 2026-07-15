@@ -13,7 +13,7 @@ import {
   type Stage,
 } from './game'
 import { playSong, stopSong } from './playSong'
-import { pickRandomSong, songDurationMs, type Song } from './songs'
+import { HAPPY_BIRTHDAY, pickRandomSong, songDurationMs, type Song } from './songs'
 
 export function useGame() {
   const [state, setState] = useState<GameState | null>(() => loadGame())
@@ -36,7 +36,7 @@ export function useGame() {
   }, [state?.stage])
 
   useEffect(() => {
-    if (!burst || burst === 'play') return
+    if (!burst || burst === 'play' || burst === 'birthday') return
     // Sleep visuals persist via state.sleeping — burst is only a short cue
     const ms =
       burst === 'hatch' ? 2200 : burst === 'meds' || burst === 'wake' ? 1400 : 900
@@ -108,13 +108,16 @@ export function useGame() {
       return
     }
 
-    if (action === 'play') {
+    if (action === 'play' || action === 'birthday') {
       if (danceTimer.current !== null) {
         window.clearTimeout(danceTimer.current)
       }
-      const song = pickRandomSong(lastSongId.current)
+      const song =
+        action === 'birthday'
+          ? HAPPY_BIRTHDAY
+          : pickRandomSong(lastSongId.current)
       lastSongId.current = song.id
-      setBurst('play')
+      setBurst(action === 'birthday' ? 'birthday' : 'play')
       setPerformance(song)
       void playSong(song)
       danceTimer.current = window.setTimeout(() => {

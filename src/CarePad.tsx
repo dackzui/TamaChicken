@@ -25,6 +25,7 @@ export function CarePad({
     { id: 'feed', label: 'Feed', icon: 'feed' },
     { id: 'bath', label: 'Bath', icon: 'bath' },
     { id: 'play', label: 'Play', icon: 'play' },
+    { id: 'birthday', label: 'Birthday', icon: 'birthday' },
     { id: 'pet', label: 'Pet', icon: 'pet' },
     sleeping
       ? { id: 'wake', label: 'Wake', icon: 'wake' }

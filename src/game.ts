@@ -15,7 +15,15 @@ export type Mood =
   | 'hungry'
   | 'sick'
 
-export type CareAction = 'feed' | 'bath' | 'play' | 'pet' | 'sleep' | 'wake' | 'meds'
+export type CareAction =
+  | 'feed'
+  | 'bath'
+  | 'play'
+  | 'pet'
+  | 'sleep'
+  | 'wake'
+  | 'meds'
+  | 'birthday'
 
 export interface Needs {
   hunger: number
@@ -56,10 +64,11 @@ export const DECAY_PER_MINUTE: Needs = {
 }
 
 /**
- * Slow growth after hatch (real time):
- * - baby: 0–16 hours
- * - growing: 16–48 hours
- * - full pet: after 48 hours
+ * Slow growth after hatch (real time) — same pace for every pet:
+ * - chicken: baby chick → growing chick → chicken
+ * - dog: puppy → growing puppy → adult dog
+ * - cat: kitten → growing kitten → grown cat
+ * Stages at 0–16h, 16–48h, then 48h+.
  */
 export const GROWTH_MINUTES = {
   teen: 16 * 60,
@@ -77,6 +86,7 @@ export const ACTION_EFFECTS: Record<CareAction, Partial<Needs>> = {
   sleep: { energy: 15, hunger: -4 },
   wake: { happiness: 5 },
   meds: { happiness: 10, energy: 8 },
+  birthday: { happiness: 35, energy: -8, hunger: -5 },
 }
 
 /** While asleep, energy recovers and other needs drop slowly. */

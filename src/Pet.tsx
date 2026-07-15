@@ -47,7 +47,8 @@ export function Pet({
   sleeping = false,
 }: PetProps) {
   const pet = getPetOption(kind)
-  const isDancing = burst === 'play' && Boolean(performance)
+  const isDancing =
+    (burst === 'play' || burst === 'birthday') && Boolean(performance)
   const isSleeping = sleeping || burst === 'sleep'
   const isHungrySkinny = hunger < 35 && !isDancing && !isSleeping
   const isSickLook = (sick || mood === 'sick') && !isDancing && !isSleeping

@@ -19,7 +19,7 @@ export const PET_OPTIONS: PetOption[] = [
     hatchCue: 'Peep!',
     babyLabel: 'baby chick',
     teenLabel: 'growing chick',
-    adultLabel: 'big chicken',
+    adultLabel: 'chicken',
     eggHint: 'Tap the egg!',
   },
   {
@@ -28,8 +28,8 @@ export const PET_OPTIONS: PetOption[] = [
     defaultName: 'Buddy',
     hatchCue: 'Woof!',
     babyLabel: 'puppy',
-    teenLabel: 'growing dog',
-    adultLabel: 'big dog',
+    teenLabel: 'growing puppy',
+    adultLabel: 'adult dog',
     eggHint: 'Tap the egg!',
   },
   {
@@ -38,8 +38,8 @@ export const PET_OPTIONS: PetOption[] = [
     defaultName: 'Mochi',
     hatchCue: 'Meow!',
     babyLabel: 'kitten',
-    teenLabel: 'growing cat',
-    adultLabel: 'big cat',
+    teenLabel: 'growing kitten',
+    adultLabel: 'grown cat',
     eggHint: 'Tap the egg!',
   },
 ]

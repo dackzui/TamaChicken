@@ -117,28 +117,46 @@ export const SONGS: Song[] = [
     ],
   },
   {
-    id: 'chick',
-    title: 'Happy Chicken',
-    lyric: 'Cluck cluck, dance with me!',
-    tempo: 140,
+    id: 'birthday',
+    title: 'Happy Birthday',
+    lyric: 'Happy birthday to you!',
+    tempo: 100,
     notes: [
-      { freq: 392, beats: 0.5 },
-      { freq: 440, beats: 0.5 },
-      { freq: 494, beats: 0.5 },
-      { freq: 523, beats: 0.5 },
-      { freq: 494, beats: 0.5 },
-      { freq: 440, beats: 0.5 },
-      { freq: 392, beats: 1 },
-      { freq: 330, beats: 0.5 },
-      { freq: 349, beats: 0.5 },
-      { freq: 392, beats: 0.5 },
-      { freq: 349, beats: 0.5 },
-      { freq: 330, beats: 0.5 },
-      { freq: 294, beats: 0.5 },
+      // Happy birthday to you
+      { freq: 262, beats: 0.75 },
+      { freq: 262, beats: 0.25 },
+      { freq: 294, beats: 1 },
       { freq: 262, beats: 1 },
+      { freq: 349, beats: 1 },
+      { freq: 330, beats: 2 },
+      // Happy birthday to you
+      { freq: 262, beats: 0.75 },
+      { freq: 262, beats: 0.25 },
+      { freq: 294, beats: 1 },
+      { freq: 262, beats: 1 },
+      { freq: 392, beats: 1 },
+      { freq: 349, beats: 2 },
+      // Happy birthday dear friend
+      { freq: 262, beats: 0.75 },
+      { freq: 262, beats: 0.25 },
+      { freq: 523, beats: 1 },
+      { freq: 440, beats: 1 },
+      { freq: 349, beats: 1 },
+      { freq: 330, beats: 1 },
+      { freq: 294, beats: 2 },
+      // Happy birthday to you
+      { freq: 466, beats: 0.75 },
+      { freq: 466, beats: 0.25 },
+      { freq: 440, beats: 1 },
+      { freq: 349, beats: 1 },
+      { freq: 392, beats: 1 },
+      { freq: 349, beats: 2 },
     ],
   },
 ]
+
+export const HAPPY_BIRTHDAY =
+  SONGS.find((s) => s.id === 'birthday') ?? SONGS[0]
 
 export function pickRandomSong(excludeId?: string): Song {
   const pool = excludeId ? SONGS.filter((s) => s.id !== excludeId) : SONGS

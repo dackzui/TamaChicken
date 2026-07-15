@@ -77,6 +77,9 @@ export default function App() {
                 const mood = getMood(state)
                 const growth = getGrowth(state)
                 const pet = getPetOption(state.kind)
+                if (performance?.id === 'birthday') {
+                  return `${state.name} sings Happy Birthday!`
+                }
                 if (performance) return `${state.name} is singing!`
                 if (burst === 'hatch') {
                   return `A ${pet.babyLabel}! Meet ${state.name}!`
