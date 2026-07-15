@@ -36,7 +36,9 @@ export function useGame() {
 
   useEffect(() => {
     if (!burst || burst === 'play') return
-    const id = window.setTimeout(() => setBurst(null), 900)
+    const ms =
+      burst === 'sleep' ? 3200 : burst === 'hatch' ? 2200 : burst === 'meds' ? 1400 : 900
+    const id = window.setTimeout(() => setBurst(null), ms)
     return () => window.clearTimeout(id)
   }, [burst])
 
@@ -65,6 +67,21 @@ export function useGame() {
   }, [])
 
   const doCare = useCallback((action: CareAction) => {
+    if (action === 'meds') {
+      stopSong()
+      if (danceTimer.current !== null) {
+        window.clearTimeout(danceTimer.current)
+        danceTimer.current = null
+      }
+      setPerformance(null)
+      setState((prev) => {
+        if (!prev?.sick) return prev
+        setBurst('meds')
+        return applyAction(prev, action)
+      })
+      return
+    }
+
     if (action === 'play') {
       if (danceTimer.current !== null) {
         window.clearTimeout(danceTimer.current)

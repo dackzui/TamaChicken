@@ -1,7 +1,7 @@
 {
   "name": "tamachicken",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "description": "TamaChicken — toddler-friendly chicken pet game",
   "author": {

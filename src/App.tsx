@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { CarePad } from './CarePad'
 import { Chicken } from './Chicken'
 import { Egg } from './Egg'
-import { getMood } from './game'
+import { getGrowth, getGrowthLabel, getMood } from './game'
 import { NameScreen } from './NameScreen'
 import { useGame } from './useGame'
 
@@ -13,10 +13,12 @@ const moodCopy: Record<string, string> = {
   sleepy: 'is sleepy',
   dirty: 'needs a bath',
   hungry: 'is hungry',
+  sick: 'is sick!',
 }
 
 export default function App() {
-  const { state, stage, burst, performance, startGame, onTapEgg, doCare, resetGame } = useGame()
+  const { state, stage, burst, performance, startGame, onTapEgg, doCare, resetGame } =
+    useGame()
 
   return (
     <div className="app">
@@ -69,18 +71,30 @@ export default function App() {
             </header>
 
             <p className="prompt">
-              {performance
-                ? `${state.name} is singing!`
-                : `${state.name} ${moodCopy[getMood(state.needs)]}`}
+              {(() => {
+                const mood = getMood(state)
+                const growth = getGrowth(state)
+                if (performance) return `${state.name} is singing!`
+                if (burst === 'hatch') return `A baby chick! Meet ${state.name}!`
+                if (burst === 'sleep' || mood === 'sleepy') {
+                  return `${state.name} is sleeping...`
+                }
+                if (mood === 'sick') return `${state.name} is sick — give Meds!`
+                if (mood === 'hungry') return `${state.name} is hungry and sad`
+                return `${state.name} (${getGrowthLabel(growth)}) ${moodCopy[mood]}`
+              })()}
             </p>
 
             <Chicken
-              mood={getMood(state.needs)}
+              mood={getMood(state)}
+              growth={getGrowth(state)}
+              hunger={state.needs.hunger}
               name={state.name}
               burst={burst}
               performance={performance}
+              sick={state.sick}
             />
-            <CarePad needs={state.needs} onCare={doCare} />
+            <CarePad needs={state.needs} onCare={doCare} sick={state.sick} />
           </motion.div>
         )}
       </AnimatePresence>
