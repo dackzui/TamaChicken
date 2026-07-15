@@ -5,16 +5,8 @@ interface CarePadProps {
   onCare: (action: CareAction) => void
   disabled?: boolean
   sick?: boolean
+  sleeping?: boolean
 }
-
-const ACTIONS: { id: CareAction; label: string; icon: string }[] = [
-  { id: 'feed', label: 'Feed', icon: 'feed' },
-  { id: 'bath', label: 'Bath', icon: 'bath' },
-  { id: 'play', label: 'Play', icon: 'play' },
-  { id: 'pet', label: 'Pet', icon: 'pet' },
-  { id: 'sleep', label: 'Sleep', icon: 'sleep' },
-  { id: 'meds', label: 'Meds', icon: 'meds' },
-]
 
 function barTone(value: number): string {
   if (value < 30) return 'low'
@@ -22,7 +14,24 @@ function barTone(value: number): string {
   return 'high'
 }
 
-export function CarePad({ needs, onCare, disabled, sick = false }: CarePadProps) {
+export function CarePad({
+  needs,
+  onCare,
+  disabled,
+  sick = false,
+  sleeping = false,
+}: CarePadProps) {
+  const actions: { id: CareAction; label: string; icon: string }[] = [
+    { id: 'feed', label: 'Feed', icon: 'feed' },
+    { id: 'bath', label: 'Bath', icon: 'bath' },
+    { id: 'play', label: 'Play', icon: 'play' },
+    { id: 'pet', label: 'Pet', icon: 'pet' },
+    sleeping
+      ? { id: 'wake', label: 'Wake', icon: 'wake' }
+      : { id: 'sleep', label: 'Sleep', icon: 'sleep' },
+    { id: 'meds', label: 'Meds', icon: 'meds' },
+  ]
+
   return (
     <div className="care">
       <div className="meters" aria-label="Chicken needs">
@@ -47,14 +56,15 @@ export function CarePad({ needs, onCare, disabled, sick = false }: CarePadProps)
       </div>
 
       <div className="actions">
-        {ACTIONS.map((action) => {
+        {actions.map((action) => {
           const isMeds = action.id === 'meds'
           const medsOff = isMeds && !sick
+          const isWake = action.id === 'wake'
           return (
             <button
               key={action.id}
               type="button"
-              className={`action action--${action.id} ${isMeds && sick ? 'action--urgent' : ''}`}
+              className={`action action--${action.id} ${isMeds && sick ? 'action--urgent' : ''} ${isWake ? 'action--wake-ready' : ''}`}
               disabled={disabled || medsOff}
               onClick={() => onCare(action.id)}
             >

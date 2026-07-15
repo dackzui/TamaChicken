@@ -18,10 +18,10 @@ export default defineConfig({
         'icon.svg',
       ],
       manifest: {
-        name: 'TamaChicken',
-        short_name: 'TamaChicken',
+        name: 'Pawchi',
+        short_name: 'Pawchi',
         description:
-          'Toddler-friendly chicken pet game by Marie Apellanes.',
+          'Pawchi — toddler-friendly chicken pet game by Marie Apellanes.',
         theme_color: '#7EC8E3',
         background_color: '#8fd3f4',
         display: 'standalone',

@@ -36,8 +36,9 @@ export function useGame() {
 
   useEffect(() => {
     if (!burst || burst === 'play') return
+    // Sleep visuals persist via state.sleeping — burst is only a short cue
     const ms =
-      burst === 'sleep' ? 3200 : burst === 'hatch' ? 2200 : burst === 'meds' ? 1400 : 900
+      burst === 'hatch' ? 2200 : burst === 'meds' || burst === 'wake' ? 1400 : 900
     const id = window.setTimeout(() => setBurst(null), ms)
     return () => window.clearTimeout(id)
   }, [burst])
@@ -79,6 +80,30 @@ export function useGame() {
         setBurst('meds')
         return applyAction(prev, action)
       })
+      return
+    }
+
+    if (action === 'sleep') {
+      stopSong()
+      if (danceTimer.current !== null) {
+        window.clearTimeout(danceTimer.current)
+        danceTimer.current = null
+      }
+      setPerformance(null)
+      setBurst('sleep')
+      setState((prev) => (prev ? applyAction(prev, 'sleep') : prev))
+      return
+    }
+
+    if (action === 'wake') {
+      stopSong()
+      if (danceTimer.current !== null) {
+        window.clearTimeout(danceTimer.current)
+        danceTimer.current = null
+      }
+      setPerformance(null)
+      setBurst('wake')
+      setState((prev) => (prev ? applyAction(prev, 'wake') : prev))
       return
     }
 

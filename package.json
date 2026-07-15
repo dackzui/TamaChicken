@@ -1,9 +1,9 @@
 {
-  "name": "tamachicken",
+  "name": "pawchi",
   "private": true,
   "version": "2.0.0",
   "type": "module",
-  "description": "TamaChicken — toddler-friendly chicken pet game",
+  "description": "Pawchi — toddler-friendly chicken pet game",
   "author": {
     "name": "Marie Apellanes",
     "url": "https://apellanes.com.au"

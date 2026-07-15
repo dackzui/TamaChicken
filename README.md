@@ -1,4 +1,4 @@
-# TamaChicken
+# Pawchi
 
 Toddler-friendly chicken pet game (ages 1–5) by [Marie Apellanes](https://apellanes.com.au).
 
@@ -8,7 +8,7 @@ Toddler-friendly chicken pet game (ages 1–5) by [Marie Apellanes](https://apel
 2. In the repo: **Settings → Pages → Build and deployment → Source: GitHub Actions**
 3. Push to `main` (or run **Actions → Deploy GitHub Pages**)
 4. Open the site URL on your iPhone in **Safari** (example):
-   `https://YOUR_GITHUB_USERNAME.github.io/tamachicken/`
+   `https://dackzui.github.io/Pawchi/`
 5. Tap **Share → Add to Home Screen → Add**
 
 The game installs like an app icon and can work offline after the first visit.

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { APP_VERSION, DEVELOPER } from './brand'
+import { APP_NAME, APP_VERSION, DEVELOPER } from './brand'
 
 interface NameScreenProps {
   onStart: (name: string) => void
@@ -16,7 +16,7 @@ export function NameScreen({ onStart }: NameScreenProps) {
   return (
     <section className="screen screen--name">
       <div className="brand-block">
-        <p className="brand">TamaChicken</p>
+        <p className="brand">{APP_NAME}</p>
         <p className="tagline">Your tiny farm friend</p>
       </div>
 

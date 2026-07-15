@@ -11,7 +11,7 @@ export type Mood =
   | 'hungry'
   | 'sick'
 
-export type CareAction = 'feed' | 'bath' | 'play' | 'pet' | 'sleep' | 'meds'
+export type CareAction = 'feed' | 'bath' | 'play' | 'pet' | 'sleep' | 'wake' | 'meds'
 
 export interface Needs {
   hunger: number
@@ -34,9 +34,11 @@ export interface GameState {
   /** Recent play count — too much play makes the pet filthy/sad/hungry */
   playStreak: number
   lastPlayAt: number
+  /** Stays asleep until woken (Play, Wake, feed, etc.) */
+  sleeping: boolean
 }
 
-export const STORAGE_KEY = 'tamachicken-save-v2'
+export const STORAGE_KEY = 'pawchi-save-v2'
 
 export const HATCH_TAPS_NEEDED = 5
 
@@ -67,9 +69,18 @@ export const ACTION_EFFECTS: Record<CareAction, Partial<Needs>> = {
   bath: { cleanliness: 45, happiness: 5 },
   play: { happiness: 28, energy: -14, hunger: -10, cleanliness: -12 },
   pet: { happiness: 20 },
-  sleep: { energy: 50, hunger: -8 },
+  sleep: { energy: 15, hunger: -4 },
+  wake: { happiness: 5 },
   meds: { happiness: 10, energy: 8 },
 }
+
+/** While asleep, energy recovers and other needs drop slowly. */
+export const SLEEP_PER_MINUTE = {
+  energy: 14,
+  hunger: 3,
+  cleanliness: 1,
+  happiness: 1,
+} as const
 
 export function clampNeed(value: number): number {
   return Math.max(0, Math.min(100, value))
@@ -94,6 +105,7 @@ export function createNewGame(name: string): GameState {
     lastSickRoll: now,
     playStreak: 0,
     lastPlayAt: 0,
+    sleeping: false,
   }
 }
 
@@ -127,6 +139,24 @@ export function applyDecay(state: GameState, now = Date.now()): GameState {
   const elapsedMs = Math.max(0, now - state.lastTick)
   const minutes = elapsedMs / 60_000
   if (minutes < 0.05) return state
+
+  if (state.sleeping) {
+    return {
+      ...state,
+      lastTick: now,
+      playStreak: decayPlayStreak(state, now),
+      needs: {
+        hunger: clampNeed(state.needs.hunger - SLEEP_PER_MINUTE.hunger * minutes),
+        cleanliness: clampNeed(
+          state.needs.cleanliness - SLEEP_PER_MINUTE.cleanliness * minutes,
+        ),
+        happiness: clampNeed(
+          state.needs.happiness - SLEEP_PER_MINUTE.happiness * minutes,
+        ),
+        energy: clampNeed(state.needs.energy + SLEEP_PER_MINUTE.energy * minutes),
+      },
+    }
+  }
 
   const sickMul = state.sick ? 1.45 : 1
   let next: GameState = {
@@ -193,11 +223,39 @@ export function applyAction(state: GameState, action: CareAction): GameState {
 
   const now = Date.now()
 
+  if (action === 'sleep') {
+    if (state.sleeping) return state
+    return {
+      ...state,
+      sleeping: true,
+      lastTick: now,
+      needs: {
+        ...state.needs,
+        energy: clampNeed(state.needs.energy + (ACTION_EFFECTS.sleep.energy ?? 0)),
+        hunger: clampNeed(state.needs.hunger + (ACTION_EFFECTS.sleep.hunger ?? 0)),
+      },
+    }
+  }
+
+  if (action === 'wake') {
+    if (!state.sleeping) return state
+    return {
+      ...state,
+      sleeping: false,
+      lastTick: now,
+      needs: {
+        ...state.needs,
+        happiness: clampNeed(state.needs.happiness + (ACTION_EFFECTS.wake.happiness ?? 0)),
+      },
+    }
+  }
+
   if (action === 'meds') {
     if (!state.sick) return state
     return {
       ...state,
       sick: false,
+      sleeping: false,
       lastSickRoll: now,
       lastTick: now,
       needs: {
@@ -239,6 +297,7 @@ export function applyAction(state: GameState, action: CareAction): GameState {
 
   return {
     ...state,
+    sleeping: false,
     needs: nextNeeds,
     playStreak,
     lastPlayAt,
@@ -260,6 +319,7 @@ export function tapEgg(state: GameState): GameState {
       playStreak: 0,
       lastPlayAt: 0,
       lastSickRoll: now,
+      sleeping: false,
       needs: {
         hunger: 70,
         cleanliness: 90,
@@ -273,6 +333,7 @@ export function tapEgg(state: GameState): GameState {
 }
 
 export function getMood(state: GameState): Mood {
+  if (state.sleeping) return 'sleepy'
   if (state.sick) return 'sick'
   const { hunger, cleanliness, happiness, energy } = state.needs
   if (energy < 25) return 'sleepy'
@@ -314,6 +375,7 @@ function migrateLoaded(raw: Record<string, unknown>): GameState | null {
     lastSickRoll: Number(raw.lastSickRoll) || now,
     playStreak: Number(raw.playStreak) || 0,
     lastPlayAt: Number(raw.lastPlayAt) || 0,
+    sleeping: Boolean(raw.sleeping),
   }
 }
 
@@ -321,6 +383,7 @@ export function loadGame(): GameState | null {
   try {
     const raw =
       localStorage.getItem(STORAGE_KEY) ??
+      localStorage.getItem('tamachicken-save-v2') ??
       localStorage.getItem('tamachicken-save-v1')
     if (!raw) return null
     const parsed = migrateLoaded(JSON.parse(raw) as Record<string, unknown>)
@@ -339,5 +402,6 @@ export function saveGame(state: GameState): void {
 
 export function clearGame(): void {
   localStorage.removeItem(STORAGE_KEY)
+  localStorage.removeItem('tamachicken-save-v2')
   localStorage.removeItem('tamachicken-save-v1')
 }

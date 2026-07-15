@@ -2,7 +2,7 @@ import type { Config } from '@capacitor/cli'
 
 const config: Config = {
   appId: 'au.com.apellanes.tamachicken',
-  appName: 'TamaChicken',
+  appName: 'Pawchi',
   webDir: 'dist',
   server: {
     androidScheme: 'https',

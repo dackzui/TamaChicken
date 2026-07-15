@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { CarePad } from './CarePad'
 import { Chicken } from './Chicken'
 import { Egg } from './Egg'
+import { APP_NAME } from './brand'
 import { getGrowth, getGrowthLabel, getMood } from './game'
 import { NameScreen } from './NameScreen'
 import { useGame } from './useGame'
@@ -47,7 +48,7 @@ export default function App() {
             className="panel panel--play"
           >
             <header className="topbar">
-              <p className="brand brand--small">TamaChicken</p>
+              <p className="brand brand--small">{APP_NAME}</p>
               <p className="pet-name">{state.name}</p>
             </header>
             <p className="prompt">Tap the egg!</p>
@@ -63,7 +64,7 @@ export default function App() {
             className="panel panel--play"
           >
             <header className="topbar">
-              <p className="brand brand--small">TamaChicken</p>
+              <p className="brand brand--small">{APP_NAME}</p>
               <p className="pet-name">{state.name}</p>
               <button type="button" className="reset" onClick={resetGame}>
                 New
@@ -76,9 +77,10 @@ export default function App() {
                 const growth = getGrowth(state)
                 if (performance) return `${state.name} is singing!`
                 if (burst === 'hatch') return `A baby chick! Meet ${state.name}!`
-                if (burst === 'sleep' || mood === 'sleepy') {
-                  return `${state.name} is sleeping...`
+                if (state.sleeping) {
+                  return `${state.name} is sleeping... Tap Wake or Play!`
                 }
+                if (burst === 'wake') return `${state.name} woke up!`
                 if (mood === 'sick') return `${state.name} is sick — give Meds!`
                 if (mood === 'hungry') return `${state.name} is hungry and sad`
                 return `${state.name} (${getGrowthLabel(growth)}) ${moodCopy[mood]}`
@@ -93,8 +95,14 @@ export default function App() {
               burst={burst}
               performance={performance}
               sick={state.sick}
+              sleeping={state.sleeping}
             />
-            <CarePad needs={state.needs} onCare={doCare} sick={state.sick} />
+            <CarePad
+              needs={state.needs}
+              onCare={doCare}
+              sick={state.sick}
+              sleeping={state.sleeping}
+            />
           </motion.div>
         )}
       </AnimatePresence>

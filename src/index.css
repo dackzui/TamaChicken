@@ -966,6 +966,21 @@ input {
   box-shadow: 6px -4px 0 -1px #fde68a;
 }
 
+.action__glyph--wake {
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff7ad, #f59e0b 55%, #ea580c);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+}
+
+.action--wake-ready {
+  outline: 3px solid #f59e0b;
+  outline-offset: 1px;
+}
+
+.fx--wake {
+  color: #ea580c;
+}
+
 .action__glyph--meds {
   width: 22px;
   height: 22px;

@@ -10,6 +10,7 @@ interface ChickenProps {
   burst: string | null
   performance?: Song | null
   sick?: boolean
+  sleeping?: boolean
 }
 
 const eyesByMood: Record<Mood, string> = {
@@ -40,13 +41,19 @@ export function Chicken({
   burst,
   performance = null,
   sick = false,
+  sleeping = false,
 }: ChickenProps) {
   const isDancing = burst === 'play' && Boolean(performance)
-  const isSleeping = burst === 'sleep' || mood === 'sleepy'
-  const isHungrySkinny = hunger < 35 && !isDancing
-  const isSickLook = (sick || mood === 'sick') && !isDancing
+  const isSleeping = sleeping || burst === 'sleep'
+  const isHungrySkinny = hunger < 35 && !isDancing && !isSleeping
+  const isSickLook = (sick || mood === 'sick') && !isDancing && !isSleeping
   const isActing = Boolean(
-    burst && burst !== 'hatch' && !isDancing && burst !== 'sleep',
+    burst &&
+      burst !== 'hatch' &&
+      !isDancing &&
+      burst !== 'sleep' &&
+      burst !== 'wake' &&
+      !isSleeping,
   )
 
   const eyes = isDancing
@@ -183,6 +190,7 @@ export function Chicken({
       {burst === 'bath' && <span className="fx fx--bath">Splash!</span>}
       {burst === 'pet' && <span className="fx fx--pet">Love!</span>}
       {burst === 'meds' && <span className="fx fx--meds">Better!</span>}
+      {burst === 'wake' && <span className="fx fx--wake">Up!</span>}
       {burst === 'hatch' && <span className="fx fx--hatch">Peep!</span>}
     </div>
   )
